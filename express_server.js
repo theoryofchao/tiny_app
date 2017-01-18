@@ -38,12 +38,13 @@ app.get('/u/:shortURL', (request, response) => {
 
 //Page to Generate New URL
 app.get('/urls/new', (request, response) => {
-  response.render("urls_new");
+  templateVars = {username: request.cookies.username}
+  response.render("urls_new", templateVars);
 });
 
 //Page to Update URL
 app.get('/urls/:id', (request, response) => {
-  let templateVars = { shortUrl: request.params.id, urls: urlDatabase };
+  let templateVars = { shortUrl: request.params.id, urls: urlDatabase, username: request.cookies.username };
   response.render("urls_show", templateVars);
 });
 
@@ -53,6 +54,18 @@ app.get('/urls/:id', (request, response) => {
 });*/
 
 /*------------------------------------------------------------------------------------------*/
+
+//Creates URL LINK
+app.post('/urls/new', (request, response) => {
+  var generatedURL = urlGenerator();
+  
+  while(typeof urlDatabase[generatedURL] !== 'undefined') {
+    generatedURL = urlGenerator();
+  }
+  urlDatabase[generatedURL] = request.body.longURL;
+
+  response.redirect('/');
+});
 
 //Updates URL Link
 app.post('/urls/:id', (request, response) => {
