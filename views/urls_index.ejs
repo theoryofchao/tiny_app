@@ -6,7 +6,13 @@
 </head>
 <body>
   <% for(url in urls) { %>
-  <%= url %> : <%= urls[url]%><br>
+    <%= url %> : <%= urls[url]%>
+    
+    <a href="/urls/<%= url %>">Edit</a>   
+
+    <form method="POST" action="/urls/<%= url %>/delete">
+      <input type="submit" value="Submit">      
+    </form>
   <% } %>
 </body>
 </html>

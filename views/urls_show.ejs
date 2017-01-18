@@ -6,5 +6,10 @@
 </head>
 <body>
         <%= shortUrl %> : <%= urls[shortUrl] %>
+
+        <form method="POST" action="/urls/<%=shortUrl%>">
+          <input id="URLToUpdate" type="text" name="URLToUpdate" placeholder="<%= urls[shortUrl] %>">
+          <input type="submit" value="Change URL"> 
+        </form>
 </body>
 </html>
