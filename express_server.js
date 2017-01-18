@@ -5,10 +5,14 @@ const bcrypt = require('bcrypt');
 var PORT = process.env.PORT || 8080;
 const randomGenerator = require("./tiny_app_functions.js");
 const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
+let cookieSession = require("cookie-session");
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  secret: '12345',
+  maxAge: 1000 * 60 * 5 //5 minutes  
+}));
 app.set("view engine", "ejs");
 
 //"Database" of Users, 123456 for Testing
@@ -28,14 +32,14 @@ var urlDatabase = {
 
 //Home Page
 app.get('/', (request, response) => {
-  console.log( request.cookies.user_id);
-  var templateVars = {urls: urlDatabase, user_id: request.cookies.user_id};
+  console.log( request.session.user_id);  //TODO: remove later
+  var templateVars = {urls: urlDatabase, user_id: request.session.user_id};
   response.render("urls_index", templateVars);
 });
 
 //Also Home Page
 app.get('/urls', (request, response) => {
-  let templateVars = {urls: urlDatabase, user_id: request.cookies.user_id};
+  let templateVars = {urls: urlDatabase, user_id: request.session.user_id};
   response.render("urls_index", templateVars);
 });
 
@@ -61,19 +65,19 @@ app.get('/u/:shortURL', (request, response) => {
 
 //Page to Generate New URL
 app.get('/urls/new', (request, response) => {
-  templateVars = {user_id: request.cookies.user_id}
+  templateVars = {user_id: request.session.user_id}
   response.render("urls_new", templateVars);
 });
 
 //Page to Update URL
 app.get('/urls/:id', (request, response) => {
-  if(urlDatabase[request.params.id].user_id !== request.cookies.user_id){
+  if(urlDatabase[request.params.id].user_id !== request.session.user_id){
     response.redirect("/401");
     return;
   }
 
 
-  let templateVars = { shortUrl: request.params.id, urls: urlDatabase, user_id: request.cookies.user_id };
+  let templateVars = { shortUrl: request.params.id, urls: urlDatabase, user_id: request.session.user_id };
   response.render("urls_show", templateVars);
 });
 
@@ -102,14 +106,14 @@ app.post('/urls/new', (request, response) => {
     generatedURL = urlGenerator();
   }
   //Save the URL to the database along with the user_id of the person who created it.
-  urlDatabase[generatedURL] = {url : request.body.longURL, user_id : request.cookies.user_id};
+  urlDatabase[generatedURL] = {url : request.body.longURL, user_id : request.session.user_id};
   //Redirects back home
   response.redirect('/');
 });
 
 //Updates URL Link
 app.post('/urls/:id', (request, response) => {
-  if(typeof request.cookies.user_id !== 'undefined') {
+  if(typeof request.session.user_id !== 'undefined') {
     urlDatabase[request.params.id].url = request.body.URLToUpdate;
     response.redirect('/');
     return;
@@ -144,7 +148,7 @@ app.post('/register', (request, response) => {
 
   //The "Database" enters the user information and a cookie is generated for the user that lasts 100 seconds
   registeredUsers[generatedId] = {id: generatedId, username: username, password: password};
-  response.cookie('user_id', generatedId, {maxAge: 100000});
+  request.session.user_id = generatedId;
   response.redirect('/');
 });
 
@@ -156,7 +160,7 @@ app.post('/login', (request, response) => {
   //Check to see if user credentials, then redirects back to home page if so
   for(var id in registeredUsers) {
     if((registeredUsers[id].username === username) && bcrypt.compareSync(password,registeredUsers[id].password)) {
-      response.cookie('user_id', registeredUsers[id].id, {maxAge: 300000});
+      request.session.user_id = registeredUsers[id].id;
       response.redirect('/');
       return;
     }
@@ -167,13 +171,13 @@ app.post('/login', (request, response) => {
 
 //Logout
 app.post('/logout', (request, response) => {
-  response.clearCookie('user_id');
+  request.session = null;
   response.redirect('/');
 });
 
 //Default 404
 app.use( (request, response) => {
-  var templateVars = {username: request.cookies.username};      
+  var templateVars = {user_id: request.session.user_id};      
   response.render("404", templateVars);
 });
 
