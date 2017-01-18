@@ -3,8 +3,10 @@ var app = express();
 var PORT = process.env.PORT || 8080;
 const urlGenerator = require("./tiny_app_functions.js");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 app.set("view engine", "ejs");
 
 var urlDatabase = {
@@ -14,13 +16,13 @@ var urlDatabase = {
 
 //Home Page
 app.get('/', (request, response) => {
-  let templateVars = {urls: urlDatabase};
+  var templateVars = {urls: urlDatabase, username: request.cookies.username};
   response.render("urls_index", templateVars);
 });
 
 //Also Home Page
 app.get('/urls', (request, response) => {
-  let templateVars = {urls: urlDatabase};
+  let templateVars = {urls: urlDatabase, username: request.cookies.username};
   response.render("urls_index", templateVars);
 });
 
@@ -46,9 +48,9 @@ app.get('/urls/:id', (request, response) => {
 });
 
 //404 placed at bottom in case all top cases were unable to find your location
-app.get('/:incorrecturl', (request, response) => {
+/*app.get('/:incorrecturl', (request, response) => {
   response.render("404");
-});
+});*/
 
 /*------------------------------------------------------------------------------------------*/
 
@@ -62,6 +64,24 @@ app.post('/urls/:id', (request, response) => {
 app.post('/urls/:shortURL/delete', (request, response) => {
   delete urlDatabase[request.params.shortURL];
   response.redirect('/');
+});
+
+//Login
+app.post('/login', (request, response) => {
+  response.cookie('username', request.body.login, {maxAge: 300000});
+  response.redirect('/');
+});
+
+//Logout
+app.post('/logout', (request, response) => {
+  response.clearCookie('username');
+  response.redirect('/');
+});
+
+//Default 404
+app.use( (request, response) => {
+  var templateVars = {username: request.cookies.username};      
+  response.render("404", templateVars);
 });
 
 app.listen(PORT, () => {
