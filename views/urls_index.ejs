@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<% var username = username; %>
+<% var user_id = user_id; %>
 <% include ./partials/_header %>
 <head>
   <title>TinyApp</title>
@@ -13,16 +13,16 @@
   <br>
 
   <% for(url in urls) { %>
+    <% if(urls[url].user_id === user_id) { %>
 
-
-    <%= url %> : <%= urls[url]%>
+      <%= urls[url].url %> : <%= urls[url].url %>
     
-    <a href="/urls/<%= url %>">Edit</a>   
+      <a href="/urls/<%= url %>">Edit</a>   
 
-    <form method="POST" action="/urls/<%= url %>/delete">
-      <input type="submit" value="Delete">      
-    </form>
-
+      <form method="POST" action="/urls/<%= url %>/delete">
+        <input type="submit" value="Delete">      
+      </form>
+    <% }%>
   <% } %>
 </body>
 </html>

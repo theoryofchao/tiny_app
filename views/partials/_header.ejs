@@ -1,18 +1,15 @@
-<% if(username) {%>
-  <%= username %>
+<a href='/'>TINY URL</a>
+
+<% if(typeof user_id !== 'undefined') {%>
+  <%= user_id %>
   <br>
   <form method="POST" action="/logout">
     <input type="submit" value="Logout">
   </form>
-
   <br>
-<% } else { %>
 
-  <header>HEADER</header>
-    <form method="POST" action="/login">
-      <label for="login">Login:
-      <input id="login" type="text" name="login">
-      <input type="submit" value="Login">
-    </form>
+<% } else { %>
+  <a href="/register">REGISTER</a>
+  <a href="/login">LOGIN PAGE</a>
 
 <% } %>
