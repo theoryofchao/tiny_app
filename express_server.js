@@ -1,5 +1,7 @@
-var express = require("express");
-var app = express();
+const express = require("express");
+const app = express();
+const bcrypt = require('bcrypt');
+
 var PORT = process.env.PORT || 8080;
 const randomGenerator = require("./tiny_app_functions.js");
 const bodyParser = require("body-parser");
@@ -10,13 +12,7 @@ app.use(cookieParser());
 app.set("view engine", "ejs");
 
 //"Database" of Users, 123456 for Testing
-var registeredUsers = {
-  '123456': {
-              'id' : '123456',
-              'username' : 'roger.ti.chao@gmail.com',
-              'password' : 'roger'
-            },
-};
+var registeredUsers = {};
 
 //"Database" of urls, all under 123456
 var urlDatabase = {
@@ -129,9 +125,9 @@ app.post('/urls/:shortURL/delete', (request, response) => {
 //Registration
 app.post('/register', (request, response) => {
   var username = request.body.username;
-  var password = request.body.password;
+  var password = bcrypt.hashSync(request.body.password, 10);
   var generatedId = randomGenerator.generateRandomId();
-  
+  console.log(password); 
   //Check to see if email is already taken
   for (var id in registeredUsers) {
     if(registeredUsers[id].username === username) {
@@ -159,7 +155,7 @@ app.post('/login', (request, response) => {
 
   //Check to see if user credentials, then redirects back to home page if so
   for(var id in registeredUsers) {
-    if((registeredUsers[id].username === username) && (registeredUsers[id].password === password)) {
+    if((registeredUsers[id].username === username) && bcrypt.compareSync(password,registeredUsers[id].password)) {
       response.cookie('user_id', registeredUsers[id].id, {maxAge: 300000});
       response.redirect('/');
       return;
