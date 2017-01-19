@@ -32,7 +32,6 @@ var urlDatabase = {
 
 //Home Page
 app.get('/', (request, response) => {
-  console.log( request.session.user_id);  //TODO: remove later
   var templateVars = {urls: urlDatabase, user_id: request.session.user_id};
   response.render("urls_index", templateVars);
 });
@@ -65,6 +64,7 @@ app.get('/u/:shortURL', (request, response) => {
 
 //Page to Generate New URL
 app.get('/urls/new', (request, response) => {
+  //TODO: send error and redirect if not logged in
   templateVars = {user_id: request.session.user_id}
   response.render("urls_new", templateVars);
 });
@@ -166,7 +166,7 @@ app.post('/login', (request, response) => {
     }
   }
 
-  response.status(403).send('Incorrect email or password supplied');
+  response.status(403).render('login');
 });
 
 //Logout

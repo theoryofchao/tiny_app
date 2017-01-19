@@ -9,7 +9,9 @@
 <body>
 
   <br>
-  <a href="/urls/new">Create New URL Here</a>
+  <% if (user_id) {%>
+    <a href="/urls/new">Create New URL Here</a>
+  <% } %>
   <br>
 
   <% for(url in urls) { %>
