@@ -118,7 +118,13 @@ app.get('/urls/:id', (request, response) => {
 /*------------------------------------------------------------------------------------------*/
 
 //Creates URL LINK
-app.post('/urls/new', (request, response) => { 
+app.post('/urls', (request, response) => {
+
+  if(request.session.user_id) {
+    let templateVars = {user_id: request.session.user_id};
+    response.status(401).render("401_login", templateVars);
+  }
+
   var generatedURL = randomGenerator.generateRandomUrl();
   //Check to see if the entry is still available
   while(typeof urlDatabase[generatedURL] !== 'undefined') {
@@ -127,7 +133,7 @@ app.post('/urls/new', (request, response) => {
   //Save the URL to the database along with the user_id of the person who created it.
   urlDatabase[generatedURL] = {url : request.body.longURL, user_id : request.session.user_id};
   //Redirects back home
-  response.redirect('/');
+  response.redirect('/urls/'+generatedURL);
 });
 
 //Updates URL Link
