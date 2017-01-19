@@ -52,6 +52,7 @@ app.get('/register', (request, response) => {
     response.redirect('/');  
     return;
   }
+
   response.render("registration"); 
 });
 
