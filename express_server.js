@@ -71,7 +71,8 @@ app.get('/u/:shortURL', (request, response) => {
     response.redirect(urlDatabase[request.params.shortURL].url);
   }
   else {
-    response.status(404).redirect("/404");
+    let templateVars = {user_id: request.session.user_id, error_message: "This link don't exist yo!"};
+    response.status(404).render("404", templateVars);
     return;
   }
 });
