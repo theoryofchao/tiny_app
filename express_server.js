@@ -38,7 +38,7 @@ app.get('/', (request, response) => {
 //URLS page if logged in
 app.get('/urls', (request, response) => {
   if(!request.session.user_id) {
-    response.status(401).render('401_url');
+    response.status(401).render('401_login');
     return;
   }
 
@@ -72,45 +72,47 @@ app.get('/u/:shortURL', (request, response) => {
   }
   else {
     response.status(404).redirect("/404");
+    return;
   }
 });
 
 //Page to Generate New URL
 app.get('/urls/new', (request, response) => {
   if(!request.session.user_id) {
-    response.redirect('/');
+    response.status(401).render('401_login');
     return;
   }
   templateVars = {user_id: request.session.user_id}
-  response.render("urls_new", templateVars);
+  response.status(200).render("urls_new", templateVars);
 });
 
 //Page to Update URL
 app.get('/urls/:id', (request, response) => {
-  if(urlDatabase[request.params.id].user_id !== request.session.user_id){
-    response.redirect("/401");
+  let templateVars;
+  //if user not login in
+  if(!request.session.user_id) {
+    templateVars = {user_id: request.session.user_id};
+    response.status(401).render("401_login", templateVars);
     return;
   }
 
+  //if :id does not exist
+  if(!urlDatabase[request.params.id]) {
+    templateVars = {user_id: request.session.user_id, error_message: "This id does not exist."};
+    response.status(404).render("404", templateVars);
+    return; 
+  }
 
-  let templateVars = { shortUrl: request.params.id, urls: urlDatabase, user_id: request.session.user_id };
+  //if user does not own this url
+  if(urlDatabase[request.params.id].user_id != request.session.user_id) {
+    templateVars = {user_id: request.session.user_id, error_message: "You do not own this url."};
+    response.status(403).render("403", templateVars);
+    return;
+  }
+
+  templateVars = { shortUrl: request.params.id, urls: urlDatabase, user_id: request.session.user_id };
   response.render("urls_show", templateVars);
 });
-
-//401 Page
-app.get('/401', (request, response) => {
-  response.render("401");
-});
-
-//404 Page
-app.get('/404', (request, response) => {
-  response.render("404");
-});
-
-//404 placed at bottom in case all top cases were unable to find your location
-/*app.get('/:incorrecturl', (request, response) => {
-  response.render("404");
-});*/
 
 /*------------------------------------------------------------------------------------------*/
 
@@ -193,8 +195,9 @@ app.post('/logout', (request, response) => {
 
 //Default 404
 app.use( (request, response) => {
-  var templateVars = {user_id: request.session.user_id};      
+  var templateVars = {user_id: request.session.user_id, error_message: "Something went wrong"};      
   response.render("404", templateVars);
+  return;
 });
 
 app.listen(PORT, () => {

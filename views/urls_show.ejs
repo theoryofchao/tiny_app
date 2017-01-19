@@ -6,11 +6,15 @@
   <title>TinyApp</title>
 </head>
 <body>
-        <%= shortUrl %> : <%= urls[shortUrl] %>
+        <%= shortUrl %> : <%= urls[shortUrl].url %>
 
         <form method="POST" action="/urls/<%=shortUrl%>">
-          <input id="URLToUpdate" type="url" name="URLToUpdate" placeholder="<%= urls[shortUrl] %>">
+          <input id="URLToUpdate" type="url" name="URLToUpdate" placeholder="<%= urls[shortUrl].url %>">
           <input type="submit" value="Change URL"> 
+        </form>
+
+        <form method="POST" action="/urls/<%=shortUrl%>/delete">
+          <input type="submit" value="Delete">
         </form>
 </body>
 </html>
