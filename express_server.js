@@ -176,11 +176,19 @@ app.post('/register', (request, response) => {
   var username = request.body.username;
   var password = bcrypt.hashSync(request.body.password, 10);
   var generatedId = randomGenerator.generateRandomId();
-  console.log(password); 
+  let templateVars;
+  
+  if(username.length == 0 && password.length == 0) {
+    templateVars={error_message: "Username or Email cannot be empty"};
+    response.status(400).render('400', templateVars);
+    return;
+  }
+  
   //Check to see if email is already taken
   for (var id in registeredUsers) {
     if(registeredUsers[id].username === username) {
-     response.status(400).send('Sorry this email is already taken');
+     templateVars={error_message: "Sorry this email is already taken"};
+     response.status(400).render('400', templateVars);
      return;
     }
   }
