@@ -120,12 +120,13 @@ app.get('/urls/:id', (request, response) => {
 //Creates URL LINK
 app.post('/urls', (request, response) => {
 
-  if(request.session.user_id) {
+  if(!registeredUsers[request.session.user_id]) {
     let templateVars = {user_id: request.session.user_id};
     response.status(401).render("401_login", templateVars);
+    return;
   }
 
-  var generatedURL = randomGenerator.generateRandomUrl();
+  let generatedURL = randomGenerator.generateRandomUrl();
   //Check to see if the entry is still available
   while(typeof urlDatabase[generatedURL] !== 'undefined') {
     generatedURL = urlGenerator();
@@ -138,11 +139,29 @@ app.post('/urls', (request, response) => {
 
 //Updates URL Link
 app.post('/urls/:id', (request, response) => {
-  if(typeof request.session.user_id !== 'undefined') {
-    urlDatabase[request.params.id].url = request.body.URLToUpdate;
-    response.redirect('/');
+  if(!registeredUsers[request.session.user_id]){
+    response.status(401).render("401_login");
     return;
   }
+
+  //if url with :id does not exist
+  if(!urlDatabase[request.params.id]){
+    let templateVars = {error_message: "Url does not exist"};
+    response.status(404).render("404", templateVars);
+    return;
+  }
+
+  //if user does not match the url owner
+  if(urlDatabase[request.params.id].user_id !== request.session.user_id) {
+    let templateVars = {error_message: "You do not own this URL"};
+    response.status(403).render("403", templateVars);
+    return;
+  }
+
+  urlDatabase[request.params.id].url = request.body.URLToUpdate;
+  response.redirect(`/urls/${request.params.id}`);
+  return;
+  
 });
 
 //Deletes a URL Link
