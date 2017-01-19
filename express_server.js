@@ -25,7 +25,7 @@ let urlDatabase = {};
 
 //Redirects to Login or to URLs
 app.get('/', (request, response) => {
-  if(request.session.user_id) {
+  if(registeredUsers[request.session.user_id]) {
     response.redirect('/urls');
     return;
   }
@@ -37,7 +37,7 @@ app.get('/', (request, response) => {
 
 //URLS page if logged in
 app.get('/urls', (request, response) => {
-  if(!request.session.user_id) {
+  if(!registeredUsers[request.session.user_id]) {
     response.status(401).render('401_login');
     return;
   }
@@ -48,7 +48,7 @@ app.get('/urls', (request, response) => {
 
 //Registration Page
 app.get('/register', (request, response) => {
-  if(request.session.user_id) {
+  if(registeredUsers[request.session.user_id]) {
     response.redirect('/');  
     return;
   }
@@ -57,7 +57,7 @@ app.get('/register', (request, response) => {
 
 //Login Page
 app.get('/login', (request, response) => {
-  if(request.session.user_id) {
+  if(registeredUsers[request.session.user_id]) {
     response.redirect('/');
     return;
   }
