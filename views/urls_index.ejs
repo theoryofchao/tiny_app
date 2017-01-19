@@ -17,7 +17,7 @@
   <% for(url in urls) { %>
     <% if(urls[url].user_id === user_id) { %>
 
-      <%= urls[url].url %> : <%= urls[url].url %>
+      localhost:8080/u/<%= url %> : <%= urls[url].url %>
     
       <a href="/urls/<%= url %>">Edit</a>   
 

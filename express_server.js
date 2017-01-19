@@ -21,18 +21,9 @@ app.use(methodOverride('_method'));
 let registeredUsers = {};
 
 //"Database" of urls, all under 123456
-let urlDatabase = {
-    'b2xVn2': {
-                'url' : 'http://lighthouselabs.ca',
-                'user_id' : '123456'
-              },
-    "9sm4xK": {
-                'url' : 'http://www.google.com',
-                'user_id' : '123456'
-              },
-};
+let urlDatabase = {};
 
-//Home Page
+//Redirects to Login or to URLs
 app.get('/', (request, response) => {
   if(request.session.user_id) {
     response.redirect('/urls');
@@ -44,8 +35,13 @@ app.get('/', (request, response) => {
   }
 });
 
-//Also Home Page
+//URLS page if logged in
 app.get('/urls', (request, response) => {
+  if(!request.session.user_id) {
+    response.status(401).render('401_url');
+    return;
+  }
+
   let templateVars = {urls: urlDatabase, user_id: request.session.user_id};
   response.render("urls_index", templateVars);
 });
