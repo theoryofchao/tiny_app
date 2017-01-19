@@ -1,11 +1,12 @@
 const express = require("express");
-const app = express();
 const bcrypt = require('bcrypt');
+const methodOverride = require('method-override');
+const app = express();
 
-var PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8080;
 const randomGenerator = require("./tiny_app_functions.js");
 const bodyParser = require("body-parser");
-let cookieSession = require("cookie-session");
+const cookieSession = require("cookie-session");
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
@@ -14,12 +15,13 @@ app.use(cookieSession({
   maxAge: 1000 * 60 * 5 //5 minutes  
 }));
 app.set("view engine", "ejs");
+app.use(methodOverride('_method'));
 
 //"Database" of Users, 123456 for Testing
-var registeredUsers = {};
+let registeredUsers = {};
 
 //"Database" of urls, all under 123456
-var urlDatabase = {
+let urlDatabase = {
     'b2xVn2': {
                 'url' : 'http://lighthouselabs.ca',
                 'user_id' : '123456'
@@ -32,8 +34,14 @@ var urlDatabase = {
 
 //Home Page
 app.get('/', (request, response) => {
-  var templateVars = {urls: urlDatabase, user_id: request.session.user_id};
-  response.render("urls_index", templateVars);
+  if(request.session.user_id) {
+    response.redirect('/urls');
+    return;
+  }
+  else{
+    response.redirect('/login');
+    return;
+  }
 });
 
 //Also Home Page
@@ -44,27 +52,39 @@ app.get('/urls', (request, response) => {
 
 //Registration Page
 app.get('/register', (request, response) => {
+  if(request.session.user_id) {
+    response.redirect('/');  
+    return;
+  }
   response.render("registration"); 
 });
 
 //Login Page
 app.get('/login', (request, response) => {
+  if(request.session.user_id) {
+    response.redirect('/');
+    return;
+  }
   response.render('login');
 });
 
 //Shortened URL Link
 app.get('/u/:shortURL', (request, response) => {
-  if(request.params.shortURL !== 'undefined') {
+  //If the response exists
+  if(urlDatabase[request.params.shortURL] && urlDatabase[request.params.shortURL].url) {
     response.redirect(urlDatabase[request.params.shortURL].url);
   }
   else {
-    response.redirect("/404");
+    response.status(404).redirect("/404");
   }
 });
 
 //Page to Generate New URL
 app.get('/urls/new', (request, response) => {
-  //TODO: send error and redirect if not logged in
+  if(!request.session.user_id) {
+    response.redirect('/');
+    return;
+  }
   templateVars = {user_id: request.session.user_id}
   response.render("urls_new", templateVars);
 });
