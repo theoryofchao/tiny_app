@@ -219,7 +219,8 @@ app.post('/login', (request, response) => {
     }
   }
 
-  response.status(403).render('login');
+  let templateVars = {error_message: "Invalid email/password"};
+  response.status(401).render('401', templateVars);
 });
 
 //Logout
