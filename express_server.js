@@ -42,7 +42,7 @@ app.get('/urls', (request, response) => {
     return;
   }
 
-  let templateVars = {urls: urlDatabase, user_id: request.session.user_id};
+  let templateVars = {urls: urlDatabase, email: registeredUsers[request.session.user_id].username, user_id: request.session.user_id};
   response.render("urls_index", templateVars);
 });
 
@@ -69,10 +69,16 @@ app.get('/login', (request, response) => {
 app.get('/u/:shortURL', (request, response) => {
   //If the response exists
   if(urlDatabase[request.params.shortURL] && urlDatabase[request.params.shortURL].url) {
+    urlDatabase[request.params.shortURL].num_visit++;
+    if(!request.session.uniq){
+      request.session.uniq = randomGenerator.generateRandomId();
+      console.log(request.session.uniq);
+      urlDatabase[request.params.shortURL].num_unique_visit.push(request.session.uniq);
+    }
     response.redirect(urlDatabase[request.params.shortURL].url);
   }
   else {
-    let templateVars = {user_id: request.session.user_id, error_message: "This link don't exist yo!"};
+    let templateVars = {user_id: request.session.user_id, email: registeredUsers[request.session.user_id].username, error_message: "This link don't exist yo!"};
     response.status(404).render("404", templateVars);
     return;
   }
@@ -80,11 +86,11 @@ app.get('/u/:shortURL', (request, response) => {
 
 //Page to Generate New URL
 app.get('/urls/new', (request, response) => {
-  if(!request.session.user_id) {
+  if(!registeredUsers[request.session.user_id]) {
     response.status(401).render('401_login');
     return;
   }
-  templateVars = {user_id: request.session.user_id}
+  templateVars = {user_id: request.session.user_id, email: registeredUsers[request.session.user_id].username}
   response.status(200).render("urls_new", templateVars);
 });
 
@@ -92,27 +98,27 @@ app.get('/urls/new', (request, response) => {
 app.get('/urls/:id', (request, response) => {
   let templateVars;
   //if user not login in
-  if(!request.session.user_id) {
-    templateVars = {user_id: request.session.user_id};
+  if(!registeredUsers[request.session.user_id]) {
+    templateVars = {user_id: request.session.user_id , email: ''};
     response.status(401).render("401_login", templateVars);
     return;
   }
 
   //if :id does not exist
   if(!urlDatabase[request.params.id]) {
-    templateVars = {user_id: request.session.user_id, error_message: "This id does not exist."};
+    templateVars = {user_id: request.session.user_id , email: registeredUsers[request.session.user_id].username, error_message: "This id does not exist."};
     response.status(404).render("404", templateVars);
     return; 
   }
 
   //if user does not own this url
   if(urlDatabase[request.params.id].user_id != request.session.user_id) {
-    templateVars = {user_id: request.session.user_id, error_message: "You do not own this url."};
+    templateVars = {user_id: request.session.user_id, email: registeredUsers[request.session.user_id].username, error_message: "You do not own this url."};
     response.status(403).render("403", templateVars);
     return;
   }
 
-  templateVars = { shortUrl: request.params.id, urls: urlDatabase, user_id: request.session.user_id };
+  templateVars = { shortUrl: request.params.id, urls: urlDatabase, user_id: request.session.user_id, email: registeredUsers[request.session.user_id].username };
   response.render("urls_show", templateVars);
 });
 
@@ -133,8 +139,12 @@ app.post('/urls', (request, response) => {
     generatedURL = urlGenerator();
   }
   //Save the URL to the database along with the user_id of the person who created it.
-  urlDatabase[generatedURL] = {url : request.body.longURL, user_id : request.session.user_id};
+  var date = new Date();
+  var time = date.getTime();
+
+  urlDatabase[generatedURL] = {url : request.body.longURL, user_id : request.session.user_id, date : time , num_visit : 0 , num_unique_visit : [] };
   //Redirects back home
+  console.log(urlDatabase); 
   response.redirect('/urls/'+generatedURL);
 });
 
@@ -147,14 +157,14 @@ app.post('/urls/:id', (request, response) => {
 
   //if url with :id does not exist
   if(!urlDatabase[request.params.id]){
-    let templateVars = {error_message: "Url does not exist"};
+    let templateVars = {user_id: request.session.user_id, email: registeredUsers[request.session.user_id].username, error_message: "Url does not exist"};
     response.status(404).render("404", templateVars);
     return;
   }
 
   //if user does not match the url owner
   if(urlDatabase[request.params.id].user_id !== request.session.user_id) {
-    let templateVars = {error_message: "You do not own this URL"};
+    let templateVars = {user_id: request.session.user_id, email: registeredUsers[request.session.user_id].username,error_message: "You do not own this URL"};
     response.status(403).render("403", templateVars);
     return;
   }

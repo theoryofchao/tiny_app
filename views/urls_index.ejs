@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<% var user_id = user_id; %>
+<% var user_id = user_id %>
+<% var email = email %>
 <% include ./partials/_header %>
 <head>
   <title>TinyApp</title>
@@ -13,17 +14,20 @@
     <a href="/urls/new">Create a New Short Link</a>
   <% } %>
   <br>
+  <br>
+  My Links<br><br><br>
 
   <% for(url in urls) { %>
     <% if(urls[url].user_id === user_id) { %>
 
-      localhost:8080/u/<%= url %> : <%= urls[url].url %>
+    localhost:8080/u/<%= url %> | <%= urls[url].url %> | <%= urls[url].date %> | <%= urls[url].num_visit %> | <%= urls[url].num_unique_visit.length %>
     
       <a href="/urls/<%= url %>">Edit</a>   
 
       <form method="POST" action="/urls/<%= url %>/delete">
         <input type="submit" value="Delete">      
       </form>
+      <br>
     <% }%>
   <% } %>
 </body>

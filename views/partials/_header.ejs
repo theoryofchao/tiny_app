@@ -1,7 +1,7 @@
 <a href='/'>TINY URL</a>
 
-<% if(typeof user_id !== 'undefined') {%>
-  <%= user_id %>
+<% if(typeof email !== 'undefined' && email.length > 3) {%>
+  <%= email %>
   <br>
   <form method="POST" action="/logout">
     <input type="submit" value="Logout">

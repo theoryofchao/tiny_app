@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-<% var username = user_id %>
+<% var username = user_id; %>
+<% var email = email; %>
 <% include ./partials/_header %>
 <head>
   <title>TinyApp</title>
 </head>
 <body>
-        <%= shortUrl %> : <%= urls[shortUrl].url %>
+        <%= shortUrl %> | <%= urls[shortUrl].url %> | <%= urls[shortUrl].date %> | <%= urls[shortUrl].num_visit %> | <%= urls[shortUrl].num_unique_visit.unique %>
 
         <form method="POST" action="/urls/<%=shortUrl%>">
           <input id="URLToUpdate" type="url" name="URLToUpdate" placeholder="<%= urls[shortUrl].url %>">
