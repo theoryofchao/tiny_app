@@ -3,16 +3,15 @@
   <head>
     <title>TinyApp</title>
   </head>
-  <body style="font-size:20px; padding: 50px;">
-
+  <body>
     <% var user_id = user_id %>
     <% var email = email; %>
     <% include ./partials/_header %>
-    <form method="POST" action="/register" style="margin:150px;">
+    <form method="POST" action="/register">
       <label for="username">Username:</label>
-      <input id="username" type="email" name="username" style="width:300px"><br>
+      <input id="username" type="email" name="username"><br>
       <label for="password">Password:</label>
-      <input id="password" type="password" name="password" style="width:300px"><br>
+      <input id="password" type="password" name="password"><br>
       <input type="submit" value="Submit">
     </form>
   </body>
