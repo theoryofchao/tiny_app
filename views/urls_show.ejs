@@ -7,7 +7,7 @@
   <title>TinyApp</title>
 </head>
 <body>
-        <%= shortUrl %> | <%= urls[shortUrl].url %> | <%= urls[shortUrl].date %> | <%= urls[shortUrl].num_visit %> | <%= urls[shortUrl].num_unique_visit.unique %>
+        <%= shortUrl %> | <%= urls[shortUrl].url %> | <%= urls[shortUrl].date %> | <%= urls[shortUrl].num_visit %> | <%= urls[shortUrl].num_unique_visit %>
 
         <form method="POST" action="/urls/<%=shortUrl%>">
           <input id="URLToUpdate" type="url" name="URLToUpdate" placeholder="<%= urls[shortUrl].url %>">

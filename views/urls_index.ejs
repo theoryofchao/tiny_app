@@ -20,7 +20,7 @@
   <% for(url in urls) { %>
     <% if(urls[url].user_id === user_id) { %>
 
-    localhost:8080/u/<%= url %> | <%= urls[url].url %> | <%= urls[url].date %> | <%= urls[url].num_visit %> | <%= urls[url].num_unique_visit.length %>
+    localhost:8080/u/<%= url %> | <%= urls[url].url %> | <%= urls[url].date %> | <%= urls[url].num_visit %> | <%= urls[url].num_unique_visit %>
     
       <a href="/urls/<%= url %>">Edit</a>   
 

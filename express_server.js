@@ -72,8 +72,7 @@ app.get('/u/:shortURL', (request, response) => {
     urlDatabase[request.params.shortURL].num_visit++;
     if(!request.session.uniq){
       request.session.uniq = randomGenerator.generateRandomId();
-      console.log(request.session.uniq);
-      urlDatabase[request.params.shortURL].num_unique_visit.push(request.session.uniq);
+      urlDatabase[request.params.shortURL].num_unique_visit++;
     }
     response.redirect(urlDatabase[request.params.shortURL].url);
   }
@@ -142,7 +141,7 @@ app.post('/urls', (request, response) => {
   var date = new Date();
   var time = date.getTime();
 
-  urlDatabase[generatedURL] = {url : request.body.longURL, user_id : request.session.user_id, date : time , num_visit : 0 , num_unique_visit : [] };
+  urlDatabase[generatedURL] = {url : request.body.longURL, user_id : request.session.user_id, date : time , num_visit : 0 , num_unique_visit : 0 };
   //Redirects back home
   console.log(urlDatabase); 
   response.redirect('/urls/'+generatedURL);
