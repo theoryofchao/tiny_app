@@ -143,7 +143,6 @@ app.post('/urls', (request, response) => {
 
   urlDatabase[generatedURL] = {url : request.body.longURL, user_id : request.session.user_id, date : time , num_visit : 0 , num_unique_visit : 0 };
   //Redirects back home
-  console.log(urlDatabase); 
   response.redirect('/urls/'+generatedURL);
 });
 
@@ -205,7 +204,6 @@ app.post('/register', (request, response) => {
   //Check to see if the randomly generated id is already taken (unlikely)
   while(typeof registeredUsers[generatedId] !== 'undefined') {
     generatedId = randomGenerator.generateRandomId();
-    console.log('test');
   }
 
   //The "Database" enters the user information and a cookie is generated for the user that lasts 100 seconds
